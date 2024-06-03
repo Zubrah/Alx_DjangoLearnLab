@@ -15,18 +15,8 @@ class Book(models.Model):
             ('can_delete', 'Can delete book'),
         ]
 
-def __str__(self):
-    """
-    Returns a string representation of the Book object.
-
-    Parameters:
-    self (Book): The instance of the Book class for which the string representation is to be generated.
-
-    Returns:
-    str: The title of the book.
-    """
-    return self.title
-
+    def __str__(self):
+        return self.title
 
 
 class CustomUserManager(BaseUserManager):
@@ -39,11 +29,17 @@ class CustomUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, username, email, date_of_birth, password=None, **extra_fields):
+    def create_superuser(self, username, email,password, date_of_birth='1990-01-01', **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
 
-        return self.create_user(username, email, date_of_birth, password, **extra_fields)
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self.create_user(username, email, password,date_of_birth, **extra_fields)
+
 
 class CustomUser(AbstractUser):
     date_of_birth = models.DateField(null=True, blank=True)
@@ -55,4 +51,3 @@ class CustomUser(AbstractUser):
         verbose_name = 'user'
         verbose_name_plural = 'users'
         abstract = False
-    
